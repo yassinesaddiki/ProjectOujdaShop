@@ -13,7 +13,14 @@ OujdaShop is an Android e-commerce application that allows users to browse, mana
 
 ## Screenshots
 
-*[Screenshots will be added here]*
+![image](https://github.com/user-attachments/assets/e42eab83-3539-4d6a-a5fd-7e8040e83c1c)
+![image](https://github.com/user-attachments/assets/c3671e53-122e-4908-8204-23534d61f29a)
+![image](https://github.com/user-attachments/assets/4d1947f8-bb51-4806-98dd-4af29e831f75)
+![image](https://github.com/user-attachments/assets/99874713-3c4f-4f16-a448-3e46d70ffa0c)
+![image](https://github.com/user-attachments/assets/1e9f3632-7be6-488e-bbf2-80ec8b324784)
+![image](https://github.com/user-attachments/assets/48b54dc1-c7ce-4e02-905e-7ad2eef11776)
+![image](https://github.com/user-attachments/assets/7a609e05-907e-4c68-8020-0348dcc3c025)
+
 
 ## Technologies Used
 
