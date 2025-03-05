@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- OujdaShop Dark Theme Colors -->
+    <color name="primary">#3F51B5</color>          <!-- Indigo -->
+    <color name="primary_dark">#303F9F</color>     <!-- Dark Indigo -->
+    <color name="primary_light">#C5CAE9</color>    <!-- Light Indigo -->
+    <color name="accent">#FF4081</color>           <!-- Pink -->
+    <color name="primary_text">#FFFFFF</color>     <!-- White text -->
+    <color name="secondary_text">#B3FFFFFF</color> <!-- White text with 70% opacity -->
+    <color name="icons">#FFFFFF</color>            <!-- White icons -->
+    <color name="divider">#1FFFFFFF</color>        <!-- White with 12% opacity -->
+    
+    <!-- Background colors -->
+    <color name="background_dark">#121212</color>  <!-- Material dark background -->
+    <color name="surface_dark">#1E1E1E</color>     <!-- Material dark surface -->
+    <color name="card_dark">#2D2D2D</color>        <!-- Material dark card -->
+    <color name="error">#CF6679</color>            <!-- Error color -->
+</resources>
