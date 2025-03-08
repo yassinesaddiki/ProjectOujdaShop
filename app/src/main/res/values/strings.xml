@@ -12,6 +12,7 @@
     <string name="no">No</string>
     <string name="error">Error</string>
     <string name="success">Success</string>
+    <string name="scan_qr_code">Scan QR Code</string>
     
     <!-- Login and Register -->
     <string name="login">Login</string>

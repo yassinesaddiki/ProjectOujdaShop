@@ -1,8 +1,11 @@
 package com.example.project_oujdashop.activities;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,17 +20,23 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.project_oujdashop.R;
 import com.example.project_oujdashop.database.DatabaseHelper;
+import com.example.project_oujdashop.utils.CaptureActivityPortrait;
 import com.example.project_oujdashop.utils.SessionManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +45,53 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private SessionManager sessionManager;
     private SimpleCursorAdapter adapter;
+    
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 200;
+    
+    // Activity result launcher for QR code scanning
+    private final ActivityResultLauncher<Intent> barcodeLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        String contents = data.getStringExtra("SCAN_RESULT");
+                        if (contents != null) {
+                            // Parse QR code content
+                            // Try to parse as URI
+                            try {
+                                Uri uri = Uri.parse(contents);
+                                if ("oujdashop".equals(uri.getScheme()) && "product".equals(uri.getHost())) {
+                                    // Extract product ID from path
+                                    String path = uri.getPath();
+                                    if (path != null && path.startsWith("/")) {
+                                        String productIdStr = path.substring(1); // Remove leading slash
+                                        long scannedProductId = Long.parseLong(productIdStr);
+                                        
+                                        // Check if product exists
+                                        Cursor cursor = databaseHelper.getProduct(scannedProductId);
+                                        if (cursor.moveToFirst()) {
+                                            // Product exists, open details activity
+                                            Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+                                            intent.putExtra("product_id", scannedProductId);
+                                            startActivity(intent);
+                                        } else {
+                                            Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show();
+                                        }
+                                        cursor.close();
+                                    } else {
+                                        Toast.makeText(this, "Invalid QR code format", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Toast.makeText(this, "Invalid QR code format", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (Exception e) {
+                                Toast.makeText(this, "Invalid QR code", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +148,14 @@ public class MainActivity extends AppCompatActivity {
             sessionManager.logoutUser();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();
+            return true;
+        } else if (id == R.id.action_scan_qr) {
+            // Start QR code scanner
+            if (checkCameraPermission()) {
+                startQRCodeScanner();
+            } else {
+                requestCameraPermission();
+            }
             return true;
         }
         
@@ -254,5 +318,37 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
+    }
+
+    private boolean checkCameraPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+    }
+    
+    private void requestCameraPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+    }
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startQRCodeScanner();
+            } else {
+                Toast.makeText(this, "Camera permission is required to scan QR codes", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
+    private void startQRCodeScanner() {
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Scan a product QR code");
+        options.setBeepEnabled(true);
+        options.setOrientationLocked(false);
+        options.setCaptureActivity(CaptureActivityPortrait.class);
+        
+        // Launch the scanning activity
+        Intent intent = options.createScanIntent(this);
+        barcodeLauncher.launch(intent);
     }
 } 

@@ -95,89 +95,25 @@
             tools:text="Product description goes here. This is a detailed description of the product." />
 
         <TextView
-            android:id="@+id/tvOptionsLabel"
+            android:id="@+id/tvQrCodeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Options"
+            android:text="Product QR Code"
             android:textAppearance="@style/TextAppearance.OujdaShop.Subtitle"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDescription" />
 
-        <RadioGroup
-            android:id="@+id/rgSizes"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvOptionsLabel">
-
-            <RadioButton
-                android:id="@+id/rbSizeS"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="S"
-                android:textColor="@color/primary_text" />
-
-            <RadioButton
-                android:id="@+id/rbSizeM"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="M"
-                android:textColor="@color/primary_text" />
-
-            <RadioButton
-                android:id="@+id/rbSizeL"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="L"
-                android:textColor="@color/primary_text" />
-
-            <RadioButton
-                android:id="@+id/rbSizeXL"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="XL"
-                android:textColor="@color/primary_text" />
-        </RadioGroup>
-
-        <CheckBox
-            android:id="@+id/cbFavorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:id="@+id/ivQrCode"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
             android:layout_marginTop="16dp"
-            android:text="@string/add_to_favorites"
-            android:textColor="@color/primary_text"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rgSizes" />
-
-        <Switch
-            android:id="@+id/swNotify"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Notify when on sale"
-            android:textColor="@color/primary_text"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cbFavorite" />
-
-        <Button
-            android:id="@+id/btnAddToCart"
-            style="@style/Widget.OujdaShop.Button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Add to Cart"
+            android:contentDescription="Product QR Code"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/swNotify" />
+            app:layout_constraintTop_toBottomOf="@+id/tvQrCodeLabel" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView> 

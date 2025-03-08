@@ -1,19 +1,16 @@
 package com.example.project_oujdashop.activities;
 
+import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.Toast;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
 import android.util.Base64;
+import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,16 +18,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.project_oujdashop.R;
 import com.example.project_oujdashop.database.DatabaseHelper;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 public class DetailsActivity extends AppCompatActivity {
 
     private ImageView ivProductImage;
     private TextView tvProductName, tvProductPrice, tvCategoryName, tvDescription;
-    private RadioGroup rgSizes;
-    private RadioButton rbSizeS, rbSizeM, rbSizeL, rbSizeXL;
-    private CheckBox cbFavorite;
-    private Switch swNotify;
-    private Button btnAddToCart;
+    private ImageView ivQrCode;
     private DatabaseHelper databaseHelper;
     private long productId;
     private String productName, categoryName, description, image;
@@ -45,8 +43,40 @@ public class DetailsActivity extends AppCompatActivity {
         // Initialize database helper
         databaseHelper = new DatabaseHelper(this);
         
-        // Get product ID from intent
-        productId = getIntent().getLongExtra("product_id", -1);
+        // Handle intent data (normal intent or deep link)
+        handleIntent(getIntent());
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+    
+    private void handleIntent(Intent intent) {
+        // Check if this is a deep link
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri uri = intent.getData();
+            if (uri != null && "oujdashop".equals(uri.getScheme()) && "product".equals(uri.getHost())) {
+                try {
+                    // Extract product ID from path
+                    String path = uri.getPath();
+                    if (path != null && path.startsWith("/")) {
+                        String productIdStr = path.substring(1); // Remove leading slash
+                        productId = Long.parseLong(productIdStr);
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+            }
+        } else {
+            // Get product ID from normal intent
+            productId = intent.getLongExtra("product_id", -1);
+        }
+        
+        // Check if product ID is valid
         if (productId == -1) {
             finish();
             return;
@@ -58,8 +88,8 @@ public class DetailsActivity extends AppCompatActivity {
         // Initialize views
         initViews();
         
-        // Set click listeners
-        setListeners();
+        // Generate QR code
+        generateQRCode();
         
         // Enable back button in action bar
         if (getSupportActionBar() != null) {
@@ -102,14 +132,7 @@ public class DetailsActivity extends AppCompatActivity {
         tvProductPrice = findViewById(R.id.tvProductPrice);
         tvCategoryName = findViewById(R.id.tvCategoryName);
         tvDescription = findViewById(R.id.tvDescription);
-        rgSizes = findViewById(R.id.rgSizes);
-        rbSizeS = findViewById(R.id.rbSizeS);
-        rbSizeM = findViewById(R.id.rbSizeM);
-        rbSizeL = findViewById(R.id.rbSizeL);
-        rbSizeXL = findViewById(R.id.rbSizeXL);
-        cbFavorite = findViewById(R.id.cbFavorite);
-        swNotify = findViewById(R.id.swNotify);
-        btnAddToCart = findViewById(R.id.btnAddToCart);
+        ivQrCode = findViewById(R.id.ivQrCode);
         
         // Set product data to views
         tvProductName.setText(productName);
@@ -130,62 +153,24 @@ public class DetailsActivity extends AppCompatActivity {
         } else {
             ivProductImage.setImageResource(R.drawable.logo);
         }
-        
-        // Default selection for size
-        rbSizeM.setChecked(true);
     }
 
-    private void setListeners() {
-        // Checkbox listener
-        cbFavorite.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                Snackbar.make(buttonView, "Added to favorites", Snackbar.LENGTH_SHORT).show();
-                cbFavorite.setText(R.string.remove_from_favorites);
-            } else {
-                Snackbar.make(buttonView, "Removed from favorites", Snackbar.LENGTH_SHORT).show();
-                cbFavorite.setText(R.string.add_to_favorites);
-            }
-        });
-        
-        // Switch listener
-        swNotify.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            String message = isChecked ? "You will be notified when this product is on sale" : "Notifications disabled for this product";
-            Snackbar.make(buttonView, message, Snackbar.LENGTH_SHORT).show();
-        });
-        
-        // Radio group listener
-        rgSizes.setOnCheckedChangeListener((group, checkedId) -> {
-            String size = "";
-            if (checkedId == R.id.rbSizeS) {
-                size = "S";
-            } else if (checkedId == R.id.rbSizeM) {
-                size = "M";
-            } else if (checkedId == R.id.rbSizeL) {
-                size = "L";
-            } else if (checkedId == R.id.rbSizeXL) {
-                size = "XL";
-            }
+    private void generateQRCode() {
+        try {
+            // Create QR code content with product ID (using deep link format)
+            String qrContent = "oujdashop://product/" + productId;
             
-            Toast.makeText(this, "Size " + size + " selected", Toast.LENGTH_SHORT).show();
-        });
-        
-        // Add to cart button listener
-        btnAddToCart.setOnClickListener(v -> {
-            // Get selected size
-            String size = "";
-            int checkedId = rgSizes.getCheckedRadioButtonId();
-            if (checkedId == R.id.rbSizeS) {
-                size = "S";
-            } else if (checkedId == R.id.rbSizeM) {
-                size = "M";
-            } else if (checkedId == R.id.rbSizeL) {
-                size = "L";
-            } else if (checkedId == R.id.rbSizeXL) {
-                size = "XL";
-            }
+            // Generate QR code
+            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+            BitMatrix bitMatrix = multiFormatWriter.encode(qrContent, BarcodeFormat.QR_CODE, 500, 500);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
             
-            // Show success message
-            Snackbar.make(v, productName + " (Size " + size + ") added to cart", Snackbar.LENGTH_LONG).show();
-        });
+            // Set QR code to ImageView
+            ivQrCode.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error generating QR code", Toast.LENGTH_SHORT).show();
+        }
     }
 } 
