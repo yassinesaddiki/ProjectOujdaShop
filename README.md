@@ -44,7 +44,7 @@ The project follows the standard Android application architecture:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/YOUR_USERNAME/ProjectOujdaShop.git
+   git clone https://github.com/yassinesaddiki/ProjectOujdaShop.git
    ```
 
 2. Open the project in Android Studio.
@@ -84,6 +84,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-Your Name - [your.email@example.com](mailto:your.email@example.com)
+Your Name - [yassad.buisness@gmail.com](mailto:yassad.buisness@gmail.com)
 
-Project Link: [https://github.com/YOUR_USERNAME/ProjectOujdaShop](https://github.com/YOUR_USERNAME/ProjectOujdaShop) 
+Project Link: [https://github.com/yassinesaddiki/ProjectOujdaShop](https://github.com/yassinesaddiki/ProjectOujdaShop) 

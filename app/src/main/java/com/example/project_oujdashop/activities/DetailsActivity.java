@@ -11,6 +11,9 @@ import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -115,7 +118,18 @@ public class DetailsActivity extends AppCompatActivity {
         tvDescription.setText(description);
         
         // Set image if available
-        // For simplicity, we're not implementing image loading in this example
+        if (image != null && !image.equals("placeholder_image")) {
+            try {
+                byte[] decodedString = Base64.decode(image, Base64.DEFAULT);
+                Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                ivProductImage.setImageBitmap(decodedBitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+                ivProductImage.setImageResource(R.drawable.logo);
+            }
+        } else {
+            ivProductImage.setImageResource(R.drawable.logo);
+        }
         
         // Default selection for size
         rbSizeM.setChecked(true);
